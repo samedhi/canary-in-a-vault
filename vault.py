@@ -49,7 +49,7 @@ def refresh_token():
         logging.info("Token changed! %s => %s", client.token, token)
         client.token = token
 
-def extend_token():
+def renew_token():
     "Extends the expiration time on client.token"
     if client.token:
         client.renew_token()
