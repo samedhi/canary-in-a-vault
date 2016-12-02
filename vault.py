@@ -1,16 +1,23 @@
 from datetime import datetime
 from flask import request
 from google.appengine.ext import ndb
+from urlparse import urljoin
 import hvac
 import json
 import logging
 import models
 import os
+import requests
+
+
+VAULT_DOMAIN = 'vault.talkiq.net'
+
+VAULT_ADDR = 'https://%s:8200'
+
+client = None
 
 
 # https://gist.github.com/TheKevJames/22e1e6c3545a758171013440bf587b12
-from urlparse import urljoin
-import requests
 def auth_approle(self, role_id, secret_id):
     url = urljoin(self._url, '/v1/auth/approle/login')
     params = {
@@ -21,19 +28,12 @@ def auth_approle(self, role_id, secret_id):
     response = self.session.post(url, allow_redirects=False, json=params, **self._kwargs)
     while response.is_redirect:
         self.session = requests.Session()
-        self.session.headers['hostname'] = 'vault.talkiq.net'
+        self.session.headers['hostname'] = VAULT_DOMAIN
         response = self.session.post(url, allow_redirects=False, json=params, **self._kwargs)
     return response.json()
 
 hvac.Client.auth_approle = auth_approle
 # END
-
-VAULT_DOMAIN = 'vault.talkiq.net'
-
-VAULT_ADDR = 'https://%s:8200'
-
-client = None
-
 
 class Vault(ndb.Model):
     created = ndb.DateTimeProperty(auto_now_add=True)
