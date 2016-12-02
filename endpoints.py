@@ -23,9 +23,22 @@ def vault_refresh():
         d = datetime.timedelta(seconds=i)
         # Truncated to the second (so each second has unique task)
         d = d.replace(microsecond=0)
-        taskqueue.add(url='/beat',
+        taskqueue.add(url='/vault/beat',
                       name=d.isoformat().replace(':', '_'),
                       eta=d,
                       target='heartbeat')
+
+    return "SUCCESS", 200
+
+@app.route('/vault/beat')
+def vault_refresh():
+    """
+    Task handler. Reads a value from Vault and confirms that the
+    read value is the expected value.
+    """
+
+    r = vault.get('secret/canary')
+    assert r['question'] = "What do you call a camel with 3 humps?"
+    assert r['answer'] = "Pregnant!"
 
     return "SUCCESS", 200
