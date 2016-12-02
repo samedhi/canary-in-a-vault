@@ -35,6 +35,26 @@ VAULT_ADDR = 'https://%s:8200'
 client = None
 
 
+class Vault(ndb.Model):
+    created = ndb.DateTimeProperty(auto_now_add=True)
+    role_id = ndb.StringProperty()
+    token = ndb.StringProperty()
+
+
+def init_client(role_id, secret_id):
+    """
+    Go to to Vault to exchange our role_id and secret_id for a
+    token. We then save all of this permanently in Datastore.
+    """
+    response = client.auth_approle(r['role_id'], r['secret_id'])
+    auth = response['auth']
+    client.token = auth['client_token']
+    v = Vault(key=singleton_key(), # key is fixed (Singleton)
+              role_id=r['role_id'],
+              token=client.token)
+    v.put()
+
+
 def reload_client():
     "Sets up the `client` connection to Vault"
     global client

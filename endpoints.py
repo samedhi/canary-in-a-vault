@@ -1,6 +1,6 @@
 from flask import request
 from google.appengine.api import taskqueue
-from vault import client, full_reload, renew_token
+from vault import init_client, renew_token
 import logging
 
 
@@ -22,16 +22,7 @@ def post_vault():
     200 RESPONSE on Success
     """
     r = request.get_json()
-    # We need to go to vault to exchange our
-    # (vault_key(), VAULT_SECRET) for a token. We then
-    # save all of this permanently in Datastore.
-    response = client.auth_approle(r['role_id'], r['secret_id'])
-    auth = response['auth']
-    client.token = auth['client_token']
-    v = Vault(key=singleton_key(), # key is fixed (Singleton)
-              role_id=r['role_id'],
-              token=client.token)
-    v.put()
+    init_client(r['role_id'], r['secret_id'])
     return "SUCCESS", 200
 
 
