@@ -1,7 +1,11 @@
 from flask import request
 from google.appengine.api import taskqueue
-from vault import init_client, renew_token
+from vault import init_vault, renew_token
 import logging
+
+
+app = Flask(__name__)
+app.config['DEBUG'] = True
 
 
 @app.route('/vault', methods=['POST'])
@@ -18,7 +22,7 @@ def post_vault():
     200 RESPONSE on Success
     """
     r = request.get_json()
-    init_client(r['role_id'], r['secret_id'])
+    init_vault(r['role_id'], r['secret_id'])
     return "SUCCESS", 200
 
 
@@ -30,6 +34,9 @@ def vault_refresh():
     This enqueues roughly one task a second that attempts to
     read from a location in Vault. Look in your GAE logs to
     confirm that you were/are able to read from Vault.
+
+    This also extends the lifetime of the client's token to
+    now() + N Minutes (specified in token).
     """
     # There is a good deal of overlap here. This is done so that
     # we can be fairly certain that every second had one task
@@ -46,11 +53,13 @@ def vault_refresh():
                       eta=d,
                       target='heartbeat')
 
+        renew_token()
+
     return "SUCCESS", 200
 
 
 @app.route('/vault/beat')
-def vault_refresh():
+def vault_beat():
     """
     Task handler. Reads a value from Vault and confirms that the
     read value is the expected value.

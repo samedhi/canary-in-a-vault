@@ -45,7 +45,7 @@ def singleton_key():
     return ndb.Key('Vault', 'SINGLETON')
 
 
-def init_client(role_id, secret_id):
+def init_vault(role_id, secret_id):
     """
     Go to to Vault to exchange our role_id and secret_id for a
     token. We then save all of this permanently in Datastore.
@@ -67,6 +67,10 @@ def reload_client():
     client = hvac.Client(url=VAULT_ADDR, session=session)
 
 
+# kickstart `client` being initialized before this module finishes loading
+reload_client()
+
+
 def refresh_token():
     "Ensures this instances' client has the newest Vault token"
     token = singleton_key().get().token
@@ -85,7 +89,7 @@ def renew_token():
 def full_reload():
     logging.info("Attempting to reload vault.client")
     reload_client()
-    refresh_token()
+    renew_token()
     logging.info("Finished reloading vault.client")
 
 
@@ -108,7 +112,3 @@ def get(path):
             logging.exception(e)
             logging.warning(client.session.headers)
             full_reload()
-
-
-# kickstart `client` being initialized before this module finishes loading
-reload_client()
