@@ -41,6 +41,10 @@ class Vault(ndb.Model):
     token = ndb.StringProperty()
 
 
+def singleton_key():
+    return ndb.Key('Vault', 'SINGLETON')
+
+
 def init_client(role_id, secret_id):
     """
     Go to to Vault to exchange our role_id and secret_id for a

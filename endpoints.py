@@ -4,10 +4,6 @@ from vault import init_client, renew_token
 import logging
 
 
-def singleton_key():
-    return ndb.Key('Vault', 'SINGLETON')
-
-
 @app.route('/vault', methods=['POST'])
 def post_vault():
     """
