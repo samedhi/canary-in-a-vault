@@ -6,7 +6,7 @@ This project exist to act as a sort of "canary in the coalmine" for Vault. It is
 
 ## Setup
 
-1. You need to have a running Vault server with a valid cert. Be sure to place the domain of your IP address [here](https://github.com/samedhi/canary-in-a-vault/blob/master/vault.py#L13) in order to connect to your Vault server.
+1. You need to have a running Vault server with a valid cert. Be sure to place the domain of your Vault server [here](https://github.com/samedhi/canary-in-a-vault/blob/master/vault.py#L13).
 2. You need to have vault installed on your local machine.
 3. You need to install some app engine depencies into your local `/lib` directory.
 ```
