@@ -1,0 +1,4 @@
+cron:
+- description: Enqueue a bunch of hearbeats to be run at regular intervals
+  url: /vault/refresh
+  schedule: every 1 minutes
