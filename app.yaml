@@ -1,0 +1,20 @@
+service: oauth
+runtime: python27
+api_version: 1
+threadsafe: true
+
+handlers:
+- url: /.*
+  script: endpoints.app
+  secure: always
+
+libraries:
+- name: jinja2
+  version: "2.6"
+- name: ssl
+  version: latest
+
+# http://stackoverflow.com/questions/29416563/google-app-engine-ssl-insecureplatformwarning
+# http://urllib3.readthedocs.io/en/latest/advanced-usage.html
+env_variables:
+   GAE_USE_SOCKETS_HTTPLIB : 'true'
