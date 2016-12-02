@@ -34,12 +34,14 @@ VAULT_ADDR = 'https://%s:8200'
 
 client = None
 
+
 def reload_client():
     "Sets up the `client` connection to Vault"
     global client
     session = requests.Session()
     session.headers['hostname'] = VAULT_DOMAIN
     client = hvac.Client(url=VAULT_ADDR, session=session)
+
 
 def refresh_token():
     "Ensures this instances' client has the newest Vault token"
@@ -49,16 +51,19 @@ def refresh_token():
         logging.info("Token changed! %s => %s", client.token, token)
         client.token = token
 
+
 def renew_token():
     "Extends the expiration time on client.token"
     if client.token:
         client.renew_token()
+
 
 def full_reload():
     logging.info("Attempting to reload vault.client")
     reload_client()
     refresh_token()
     logging.info("Finished reloading vault.client")
+
 
 def get(path):
     "Get the Vault dictionary at path"
@@ -79,6 +84,7 @@ def get(path):
             logging.exception(e)
             logging.warning(client.session.headers)
             full_reload()
+
 
 # kickstart `client` being initialized before this module finishes loading
 reload_client()
