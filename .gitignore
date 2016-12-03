@@ -1,2 +1,2 @@
 lib
-/appengine_config.pyc
+*.pyc
