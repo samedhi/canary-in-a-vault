@@ -1,4 +1,4 @@
-from flask import request
+from flask import Flask, request
 from google.appengine.api import taskqueue
 from vault import init_vault, renew_token
 import logging
@@ -66,7 +66,7 @@ def vault_beat():
     """
 
     r = vault.get('secret/canary')
-    assert r['question'] = "What do you call a camel with 3 humps?"
-    assert r['answer'] = "Pregnant!"
+    assert r['question'] == "What do you call a camel with 3 humps?"
+    assert r['answer'] == "Pregnant!"
 
     return "SUCCESS", 200

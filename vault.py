@@ -5,7 +5,6 @@ from urlparse import urljoin
 import hvac
 import json
 import logging
-import models
 import os
 import requests
 
@@ -50,7 +49,7 @@ def init_vault(role_id, secret_id):
     Go to to Vault to exchange our role_id and secret_id for a
     token. We then save all of this permanently in Datastore.
     """
-    response = client.auth_approle(r['role_id'], r['secret_id'])
+    response = client.auth_approle(role_id, secret_id)
     auth = response['auth']
     client.token = auth['client_token']
     v = Vault(key=singleton_key(), # key is fixed (Singleton)
