@@ -14,6 +14,10 @@ This project exist to act as a sort of "canary in the coalmine" for Vault. It is
 > cd canary-in-a-vault
 > pip install --ignore-installed --target=lib -r requirements.txt
 ```
+4. You need to put something to look up in Vault.
+```
+> vault write secret/canary question="What do you call a camel with 3 humps?" answer="Pregnant"
+```
 
 ## Test
 
