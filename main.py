@@ -1,7 +1,8 @@
+from datetime import datetime, timedelta
 from flask import Flask, request
 from google.appengine.api import taskqueue
-from vault import init_vault, renew_token
 import logging
+import vault
 
 
 app = Flask(__name__)
@@ -22,7 +23,7 @@ def post_vault():
     200 RESPONSE on Success
     """
     r = request.get_json()
-    init_vault(r['role_id'], r['secret_id'])
+    vault.init(r['role_id'], r['secret_id'])
     return "SUCCESS", 200
 
 
@@ -45,7 +46,7 @@ def vault_refresh():
         # Right now
         d = datetime.now()
         # Right now + i seconds in the future
-        d = datetime.timedelta(seconds=i)
+        d = d + timedelta(seconds=i)
         # Truncated to the second (so each second has unique task)
         d = d.replace(microsecond=0)
         taskqueue.add(url='/vault/beat',
@@ -53,7 +54,7 @@ def vault_refresh():
                       eta=d,
                       target='heartbeat')
 
-        renew_token()
+        vault.renew_token()
 
     return "SUCCESS", 200
 
@@ -66,7 +67,7 @@ def vault_beat():
     """
 
     r = vault.get('secret/canary')
-    assert r['question'] == "What do you call a camel with 3 humps?"
-    assert r['answer'] == "Pregnant!"
+    assert r['question'] == "What do you call a camel with 3 humps?", r
+    assert r['answer'] == "Pregnant", r
 
     return "SUCCESS", 200

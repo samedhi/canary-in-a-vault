@@ -44,7 +44,7 @@ def singleton_key():
     return ndb.Key('Vault', 'SINGLETON')
 
 
-def init_vault(role_id, secret_id):
+def init(role_id, secret_id):
     """
     Go to to Vault to exchange our role_id and secret_id for a
     token. We then save all of this permanently in Datastore.
@@ -100,8 +100,7 @@ def get(path):
     i = 0
     while i < 3:
         try:
-            v_data = client.read(path)['data']
-            break
+            return client.read(path)['data']
         except BaseException as e:
             i = i + 1
             if i >= 3:

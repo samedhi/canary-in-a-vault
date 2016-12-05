@@ -28,10 +28,13 @@ class AppTest(unittest.TestCase):
         self.testbed.activate()
         self.testbed.init_datastore_v3_stub()
         self.testbed.init_memcache_stub()
+        self.testbed.init_taskqueue_stub()
         init_vault(self.testapp)
 
     def tearDown(self):
         self.testbed.deactivate()
 
     def testEndpoints(self):
-        pass
+        self.testapp.get('/vault/refresh')
+
+        self.testapp.get('/vault/beat')
