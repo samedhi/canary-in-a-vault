@@ -11,7 +11,7 @@ import requests
 
 VAULT_DOMAIN = 'vault.talkiq.net'
 
-VAULT_ADDR = 'https://%s:8200'
+VAULT_ADDR = 'https://%s:8200' % VAULT_DOMAIN
 
 client = None
 
@@ -53,7 +53,7 @@ def init_vault(role_id, secret_id):
     auth = response['auth']
     client.token = auth['client_token']
     v = Vault(key=singleton_key(), # key is fixed (Singleton)
-              role_id=r['role_id'],
+              role_id=role_id,
               token=client.token)
     v.put()
 

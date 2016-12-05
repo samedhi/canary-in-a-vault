@@ -10,7 +10,7 @@ This project exist to act as a sort of "canary in the coalmine" for Vault. It is
 
 You need to have a running Vault server with a valid cert. Be sure to place the domain of your Vault server [here](https://github.com/samedhi/canary-in-a-vault/blob/master/vault.py#L13).
 
-### Vault Local 
+### Vault Client
 You need to have [Vault installed](https://www.vaultproject.io/docs/install/install.html) on your local machine.
 
 ### Pip
@@ -30,7 +30,7 @@ You need to put something to look up in Vault.
 ## Test
 
 ```
-> python runner.py $GOOGLE_CLOUD_SDK
+> python runner.py $GOOGLE_CLOUD_SDK # My $GOOGLE_CLOUD_SDK => /Users/stephen/Bin/google-cloud-sdk/
 ```
 
 ## Deploy
