@@ -34,3 +34,7 @@ You need to put something to look up in Vault.
 ```
 
 ## Deploy
+
+```
+> gcloud app deploy app.yaml cron.yaml queue.yaml --project <ID_OF_YOUR_GCLOUD_PROJECT>
+```
