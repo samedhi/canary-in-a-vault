@@ -103,10 +103,10 @@ def get(path):
             return client.read(path)['data']
         except BaseException as e:
             i = i + 1
-            if i >= 3:
-                logging.error("Persistent Vault Failure path=`%s` return=`%s`", path, c_data)
+            if i >= 1:
+                logging.error("Persistent Vault Failure on path=`%s", path)
                 break
-            logging.warning("Vault Failed")
+            logging.warning("Vault Failure %s" % i)
             logging.exception(e)
             logging.warning(client.session.headers)
-            full_reload()
+            # full_reload()

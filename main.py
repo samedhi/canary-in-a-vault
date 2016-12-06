@@ -39,35 +39,47 @@ def vault_refresh():
     This also extends the lifetime of the client's token to
     now() + N Minutes (specified in token).
     """
+    vault.renew_token()
+
+    # Right now
+    now = datetime.now()
+
     # There is a good deal of overlap here. This is done so that
     # we can be fairly certain that every second had one task
     # enqueued for it. I want a regular (no skipping) heartbeat.
     for i in range(120):
-        # Right now
-        d = datetime.now()
         # Right now + i seconds in the future
-        d = d + timedelta(seconds=i)
+        d = now + timedelta(seconds=i)
         # Truncated to the second (so each second has unique task)
         d = d.replace(microsecond=0)
-        taskqueue.add(url='/vault/beat',
-                      name=d.isoformat().replace(':', '_'),
-                      eta=d,
-                      target='heartbeat')
-
-        vault.renew_token()
+        try:
+            taskqueue.add(url='/vault/beat',
+                          name=d.isoformat().replace(':', '_'),
+                          eta=d,
+                          queue_name='heartbeat')
+        except BaseException as e:
+            pass
 
     return "SUCCESS", 200
 
 
-@app.route('/vault/beat')
+@app.route('/vault/beat', methods=['POST'])
 def vault_beat():
     """
     Task handler. Reads a value from Vault and confirms that the
     read value is the expected value.
     """
+    try:
+        r = vault.get('secret/canary')
+    except BaseException as e:
+        logging.info(e)
+        return "VAULT FAILURE", 205
 
-    r = vault.get('secret/canary')
-    assert r['question'] == "What do you call a camel with 3 humps?", r
-    assert r['answer'] == "Pregnant", r
+    try:
+        assert r['question'] == "What do you call a camel with 3 humps?", r
+        assert r['answer'] == "Pregnant", r
+    except BaseException as e:
+        logging.info(e)
+        return "LOGIC FAILURE", 210
 
     return "SUCCESS", 200
