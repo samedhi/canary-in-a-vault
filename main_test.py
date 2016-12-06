@@ -37,4 +37,4 @@ class AppTest(unittest.TestCase):
     def testEndpoints(self):
         self.testapp.get('/vault/refresh')
 
-        self.testapp.get('/vault/beat')
+        self.testapp.post('/vault/beat')
