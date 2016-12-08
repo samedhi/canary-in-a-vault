@@ -1,6 +1,7 @@
 from datetime import datetime
 from flask import request
 from google.appengine.ext import ndb
+from requests_toolbelt.adapters import host_header_ssl
 from urlparse import urljoin
 import hvac
 import json
@@ -14,25 +15,6 @@ VAULT_DOMAIN = 'vault.talkiq.net'
 VAULT_ADDR = 'https://%s:8200' % VAULT_DOMAIN
 
 client = None
-
-
-# https://gist.github.com/TheKevJames/22e1e6c3545a758171013440bf587b12
-def auth_approle(self, role_id, secret_id):
-    url = urljoin(self._url, '/v1/auth/approle/login')
-    params = {
-        'role_id': role_id,
-        'secret_id': secret_id,
-    }
-
-    response = self.session.post(url, allow_redirects=False, json=params, **self._kwargs)
-    while response.is_redirect:
-        self.session = requests.Session()
-        self.session.headers['hostname'] = VAULT_DOMAIN
-        response = self.session.post(url, allow_redirects=False, json=params, **self._kwargs)
-    return response.json()
-
-hvac.Client.auth_approle = auth_approle
-# END
 
 class Vault(ndb.Model):
     created = ndb.DateTimeProperty(auto_now_add=True)
@@ -61,9 +43,9 @@ def init(role_id, secret_id):
 def reload_client():
     "Sets up the `client` connection to Vault"
     global client
-    session = requests.Session()
-    session.headers['hostname'] = VAULT_DOMAIN
-    client = hvac.Client(url=VAULT_ADDR, session=session)
+    client = hvac.Client(url=VAULT_ADDR)
+    client.session.mount('https://', host_header_ssl.HostHeaderSSLAdapter())
+    client.session.headers['Host'] = VAULT_DOMAIN
 
 
 # kickstart `client` being initialized before this module finishes loading
