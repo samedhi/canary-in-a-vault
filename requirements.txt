@@ -1,3 +1,14 @@
 Flask==0.11.1
 hvac==0.2.16
+
+# This is neccessary for Kevin's fix
 requests-toolbelt
+
+# http://stackoverflow.com/questions/29099404/ssl-insecureplatform-error-when-using-requests-package
+# requests[security]
+
+# http://stackoverflow.com/questions/29416563/google-app-engine-ssl-insecureplatformwarning
+# urllib3
+
+# http://stackoverflow.com/a/29154960/21317
+# requests==2.5.3
