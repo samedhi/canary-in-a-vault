@@ -33,14 +33,15 @@ def init(role_id, secret_id):
     """
     response = client.auth_approle(role_id, secret_id)
     auth = response['auth']
-    client.token = auth['client_token']
+    client_token = auth['client_token']
     v = Vault(key=singleton_key(), # key is fixed (Singleton)
               role_id=role_id,
-              token=client.token)
+              token=client_token)
     v.put()
+    client.token = client_token
 
 
-def reload_client():
+def build_client():
     "Sets up the `client` connection to Vault"
     global client
     client = hvac.Client(url=VAULT_ADDR)
@@ -49,10 +50,10 @@ def reload_client():
 
 
 # kickstart `client` being initialized before this module finishes loading
-reload_client()
+build_client()
 
 
-def refresh_token():
+def load_token():
     "Ensures this instances' client has the newest Vault token"
     token = singleton_key().get().token
     assert token
@@ -68,10 +69,8 @@ def renew_token():
 
 
 def full_reload():
-    logging.info("Attempting to reload vault.client")
-    reload_client()
-    renew_token()
-    logging.info("Finished reloading vault.client")
+    build_client()
+    load_token()
 
 
 def get(path):
@@ -84,11 +83,10 @@ def get(path):
         try:
             return client.read(path)['data']
         except BaseException as e:
-            i = i + 1
             if i >= 1:
                 logging.error("Persistent Vault Failure on path=`%s", path)
-                break
+                raise
+            i = i + 1
             logging.warning("Vault Failure %s" % i)
             logging.exception(e)
-            logging.warning(client.session.headers)
-            # full_reload()
+            full_reload()
