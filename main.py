@@ -72,14 +72,14 @@ def vault_beat():
     try:
         r = vault.get('secret/canary')
     except BaseException as e:
-        logging.info(e)
+        logging.exception(e)
         return "VAULT FAILURE", 205
 
     try:
         assert r['question'] == "What do you call a camel with 3 humps?", r
         assert r['answer'] == "Pregnant", r
     except BaseException as e:
-        logging.info(e)
+        logging.exception(e)
         return "LOGIC FAILURE", 210
 
     return "SUCCESS", 200
