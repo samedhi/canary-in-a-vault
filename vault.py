@@ -10,7 +10,7 @@ import os
 import requests
 
 
-VAULT_DOMAIN = 'vault.talkiq.net'
+VAULT_DOMAIN = 'vault.talkiq.net' # <- Put your DOMAIN here
 
 VAULT_ADDR = 'https://%s:8200' % VAULT_DOMAIN
 
