@@ -55,8 +55,7 @@ def vault_refresh():
         try:
             taskqueue.add(url='/vault/beat',
                           name=d.isoformat().replace(':', '_'),
-                          eta=d,
-                          queue_name='heartbeat')
+                          eta=d)
         except BaseException as e:
             pass
 

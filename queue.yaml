@@ -1,4 +1,0 @@
-queue:
-
-- name: heartbeat
-  rate: 10/s
