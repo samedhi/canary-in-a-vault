@@ -31,15 +31,18 @@ def init(role_id, secret_id):
     Go to to Vault to exchange our role_id and secret_id for a
     token. We then save all of this permanently in Datastore.
     """
-    response = client.auth_approle(role_id, secret_id)
-    auth = response['auth']
-    client_token = auth['client_token']
-    v = Vault(key=singleton_key(), # key is fixed (Singleton)
-              role_id=role_id,
-              token=client_token)
-    v.put()
-    client.token = client_token
-
+    try:
+        response = client.auth_approle(role_id, secret_id)
+        auth = response['auth']
+        client_token = auth['client_token']
+        v = Vault(key=singleton_key(), # key is fixed (Singleton)
+                  role_id=role_id,
+                  token=client_token)
+        v.put()
+        client.token = client_token
+    except BaseException:
+        logging.error("Failed to update token with %s %s", role_id, secret_id)
+        raise
 
 def build_client():
     "Sets up the `client` connection to Vault"
