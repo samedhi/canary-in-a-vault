@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from flask import Flask, request
-from google.appengine.api import taskqueue
+from google.appengine.api import taskqueue, memcache
 import logging
 import vault
 
@@ -62,12 +62,69 @@ def vault_refresh():
     return "SUCCESS", 200
 
 
+# The math on all of this is not strictly correct, but it is
+# "eyeball good". If you need real metrics for errors and
+# latency, you should be looking at logs or elasticsearch.
+
+def cas_fx(k, fx):
+    i = 0
+    client = memcache.Client()
+    while i < 3:
+        i = i + 1
+        avg_value = client.gets(k)
+        if avg_value is None:
+            memcache.add(k, 0)
+            continue
+        new_avg = fx(avg_value)
+        if client.cas(k, new_avg):
+            break
+
+
+def record_success(start):
+    end = datetime.now()
+    s = (end - start).total_seconds()
+    cas_fx('LATENCY_DAY_' + end.strftime('%Y-%m-%d'),
+           lambda avg: avg + s / (60 * 60 * 24))
+    cas_fx('LATENCY_HOUR_' + end.strftime('%Y-%m-%d-%H'),
+           lambda avg: avg + s / (60 * 60))
+    cas_fx('LATENCY_MINUTE_' + end.strftime('%Y-%m-%d-%H-%M'),
+           lambda avg: avg + s / 60)
+
+
+def record_failure(start):
+    memcache.set('LAST_FAILURE', start)
+
+
 @app.route('/vault/beat', methods=['POST'])
 def vault_beat():
     """
     Task handler. Reads a value from Vault and confirms that the
     read value is the expected value.
     """
+    now = datetime.now()
+    try:
+        r = vault.get('secret/canary')
+        record_success(now)
+    except BaseException as e:
+        # record_failure(now)
+        logging.exception(e)
+        return "VAULT FAILURE", 205
+
+    try:
+        assert r['question'] == "What do you call a camel with 3 humps?", r
+        assert r['answer'] == "Pregnant", r
+    except BaseException as e:
+        logging.exception(e)
+        return "LOGIC FAILURE", 210
+
+    return "SUCCESS", 200
+
+@app.route('/')
+def vault_summary():
+    """
+    Analytics about how things are doing.
+    """
+    memcache.get
     try:
         r = vault.get('secret/canary')
     except BaseException as e:
