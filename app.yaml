@@ -3,6 +3,10 @@ api_version: 1
 threadsafe: true
 
 handlers:
+- url: /assets
+  static_dir: assets
+  secure: always
+
 - url: /.*
   script: main.app
   secure: always

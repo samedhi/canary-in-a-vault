@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Heartbeat Summary for Vault</title>
+    <link rel="stylesheet" type="text/css" href="/assets/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.deep_orange-red.min.css" />
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+  </head>
+  <body>
+    <div class="horizontal-center">
+      <div class="vault-card-wide mdl-card mdl-shadow--4dp">
+        <div class="mdl-card__title">
+          <h2 class="mdl-card__title-text horizontal-center">Vault has not missed a beat for...</h2>
+        </div>
+        <div class="mdl-card__supporting-text normal-size">
+          <div class="horizontal-center">
+            <div class="vertical-center">
+              {{ active_days }} days
+              {{ active_days }} hours
+              {{ active_days }} minutes
+              {{ active_days }} seconds
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="horizontal-center">
+      <div class="vault-card-wide mdl-card mdl-shadow--2dp">
+        <div class="mdl-card__title">
+          <h2 class="mdl-card__title-text horizontal-center">Average Latency for the last Minute</h2>
+        </div>
+        <div class="mdl-card__supporting-text">
+          <div class="horizontal-center">
+            <div class="vertical-center">
+              {{ latency_minute }} seconds
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="horizontal-center">
+      <div class="vault-card-wide mdl-card mdl-shadow--2dp">
+        <div class="mdl-card__title">
+          <h2 class="mdl-card__title-text horizontal-center">Average Latency for the last Hour</h2>
+        </div>
+        <div class="mdl-card__supporting-text">
+          <div class="horizontal-center">
+            <div class="vertical-center">
+              {{ latency_hour }} seconds
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="horizontal-center">
+      <div class="vault-card-wide mdl-card mdl-shadow--2dp">
+        <div class="mdl-card__title">
+          <h2 class="mdl-card__title-text horizontal-center">Average Latency for the last Day</h2>
+        </div>
+        <div class="mdl-card__supporting-text">
+          <div class="horizontal-center">
+            <div class="vertical-center">
+              {{ latency_day }} seconds
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

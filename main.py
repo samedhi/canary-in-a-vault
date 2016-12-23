@@ -1,13 +1,13 @@
 from datetime import datetime, timedelta
 from flask import Flask, request
 from google.appengine.api import taskqueue, memcache
+from jinja2 import Environment, FileSystemLoader
 import logging
 import vault
 
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
-
 
 @app.route('/vault', methods=['POST'])
 def post_vault():
@@ -119,23 +119,18 @@ def vault_beat():
 
     return "SUCCESS", 200
 
+env = Environment(loader=FileSystemLoader('templates'))
+
 @app.route('/')
 def vault_summary():
     """
     Analytics about how things are doing.
     """
-    memcache.get
-    try:
-        r = vault.get('secret/canary')
-    except BaseException as e:
-        logging.exception(e)
-        return "VAULT FAILURE", 205
-
-    try:
-        assert r['question'] == "What do you call a camel with 3 humps?", r
-        assert r['answer'] == "Pregnant", r
-    except BaseException as e:
-        logging.exception(e)
-        return "LOGIC FAILURE", 210
-
-    return "SUCCESS", 200
+    t = env.get_template('summary.html')
+    return t.render(active_days=1,
+                    active_hours=1,
+                    active_minutes=1,
+                    active_seconds=1,
+                    latency_day=1.2345,
+                    latency_hour=1.234,
+                    latency_minute=1.23)
