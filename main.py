@@ -83,11 +83,11 @@ def cas_fx(k, fx):
 def record_success(start):
     end = datetime.now()
     s = (end - start).total_seconds()
-    cas_fx('LATENCY_DAY_' + end.strftime('%Y-%m-%d'),
+    cas_fx('LATENCY_' + end.strftime('%Y-%m-%d'),
            lambda avg: avg + s / (60 * 60 * 24))
-    cas_fx('LATENCY_HOUR_' + end.strftime('%Y-%m-%d-%H'),
+    cas_fx('LATENCY_' + end.strftime('%Y-%m-%d-%H'),
            lambda avg: avg + s / (60 * 60))
-    cas_fx('LATENCY_MINUTE_' + end.strftime('%Y-%m-%d-%H-%M'),
+    cas_fx('LATENCY_' + end.strftime('%Y-%m-%d-%H-%M'),
            lambda avg: avg + s / 60)
 
 
@@ -106,7 +106,7 @@ def vault_beat():
         r = vault.get('secret/canary')
         record_success(now)
     except BaseException as e:
-        # record_failure(now)
+        record_failure(now)
         logging.exception(e)
         return "VAULT FAILURE", 205
 
@@ -127,10 +127,19 @@ def vault_summary():
     Analytics about how things are doing.
     """
     t = env.get_template('summary.html')
-    return t.render(active_days=1,
-                    active_hours=1,
-                    active_minutes=1,
-                    active_seconds=1,
-                    latency_day=1.2345,
-                    latency_hour=1.234,
-                    latency_minute=1.23)
+    end = datetime.now()
+    m = end.strftime('%Y-%m-%d-%H-%M')
+    h = end.strftime('%Y-%m-%d-%H')
+    d = end.strftime('%Y-%m-%d')
+    f = memcache.get('LAST_FAILURE')
+    if not f:
+        memcache.set('LAST_FAILURE', end)
+        f = end
+    td = end - f
+    return t.render(last_failure_days= td.days,
+                    last_failure_hours= td.seconds // 3600 ,
+                    last_failure_minutes= td.seconds // 60 % 60,
+                    last_failure_seconds= td.seconds % 60,
+                    latency_day=memcache.get('LATENCY_%s' % d),
+                    latency_hour=memcache.get('LATENCY_%s' % h),
+                    latency_minute=memcache.get('LATENCY_%s' % m))

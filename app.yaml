@@ -7,6 +7,10 @@ handlers:
   static_dir: assets
   secure: always
 
+- url: /vault/beat
+  script: main.app
+  login: admin
+
 - url: /.*
   script: main.app
   secure: always
