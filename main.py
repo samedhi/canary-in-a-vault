@@ -136,10 +136,10 @@ def vault_summary():
         memcache.set('LAST_FAILURE', end)
         f = end
     td = end - f
-    return t.render(last_failure_days= td.days,
-                    last_failure_hours= td.seconds // 3600 ,
-                    last_failure_minutes= td.seconds // 60 % 60,
-                    last_failure_seconds= td.seconds % 60,
-                    latency_day=memcache.get('LATENCY_%s' % d),
-                    latency_hour=memcache.get('LATENCY_%s' % h),
-                    latency_minute=memcache.get('LATENCY_%s' % m))
+    return t.render(last_failure_days=td.days,
+                    last_failure_hours=td.seconds // 3600 ,
+                    last_failure_minutes=td.seconds // 60 % 60,
+                    last_failure_seconds=td.seconds % 60,
+                    latency_day=(memcache.get('LATENCY_%s' % d) or 0),
+                    latency_hour=(memcache.get('LATENCY_%s' % h) or 0),
+                    latency_minute=(memcache.get('LATENCY_%s' % m) or 0))

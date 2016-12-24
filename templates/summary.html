@@ -35,7 +35,7 @@
         <div class="mdl-card__supporting-text">
           <div class="horizontal-center">
             <div class="vertical-center">
-              {{ latency_minute }} seconds
+              {{ latency_minute|round(4, 'floor') }} seconds
             </div>
           </div>
         </div>
@@ -50,7 +50,7 @@
         <div class="mdl-card__supporting-text">
           <div class="horizontal-center">
             <div class="vertical-center">
-              {{ latency_hour }} seconds
+              {{ latency_hour|round(4, 'floor') }} seconds
             </div>
           </div>
         </div>
@@ -65,7 +65,7 @@
         <div class="mdl-card__supporting-text">
           <div class="horizontal-center">
             <div class="vertical-center">
-              {{ latency_day }} seconds
+              {{ latency_day|round(4, 'floor') }} seconds
             </div>
           </div>
         </div>
