@@ -121,27 +121,46 @@ def vault_beat():
 
 env = Environment(loader=FileSystemLoader('templates'))
 
+def mem_get(k):
+    return memcache.get('LATENCY_%s' % k) or 0
+
 @app.route('/')
 def vault_summary():
     """
     Analytics about how things are doing.
     """
-    t = env.get_template('summary.html')
-    end = datetime.now()
-    m = end.strftime('%Y-%m-%d-%H-%M')
-    h = end.strftime('%Y-%m-%d-%H')
-    d = end.strftime('%Y-%m-%d')
+    now = datetime.now()
+    previous_minute = now - timedelta(minutes=1)
+    previous_hour = now - timedelta(hours=1)
+    previous_day = now - timedelta(days=1)
+
+    m_now = now.strftime('%Y-%m-%d-%H-%M')
+    h_now = now.strftime('%Y-%m-%d-%H')
+    d_now = now.strftime('%Y-%m-%d')
+    m_previous = previous_minute.strftime('%Y-%m-%d-%H-%M')
+    h_previous = previous_hour.strftime('%Y-%m-%d-%H')
+    d_previous = previous_day.strftime('%Y-%m-%d')
+
+    m_avg = mem_get(m_now) * (now.second / 60.0) + \
+            mem_get(m_previous) * ((60 - now.second) / 60.0)
+    h_avg = mem_get(h_now) * (now.minute / 60.0) + \
+            mem_get(h_previous) * ((60 - now.minute) / 60.0)
+    d_avg = mem_get(d_now) * (now.hour / 24.0) + \
+            mem_get(d_previous) * ((24 - now.hour) / 24.0)
+
     k = vault.singleton_key('Error')
     f = k.get()
     if f:
-        td = end - f.updated
+        td = now - f.updated
     else:
         vault.Error(key=k).put()
-        td = end - end
-    return t.render(last_failure_days=td.days,
-                    last_failure_hours=td.seconds // 3600 ,
-                    last_failure_minutes=td.seconds // 60 % 60,
-                    last_failure_seconds=td.seconds % 60,
-                    latency_day=(memcache.get('LATENCY_%s' % d) or 0),
-                    latency_hour=(memcache.get('LATENCY_%s' % h) or 0),
-                    latency_minute=(memcache.get('LATENCY_%s' % m) or 0))
+        td = now - now
+
+    return env.get_template('summary.html').render(
+        last_failure_days=td.days,
+        last_failure_hours=td.seconds // 3600 ,
+        last_failure_minutes=td.seconds // 60 % 60,
+        last_failure_seconds=td.seconds % 60,
+        latency_day=d_avg,
+        latency_hour=h_avg,
+        latency_minute=m_avg)
