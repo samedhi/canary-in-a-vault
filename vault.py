@@ -21,9 +21,11 @@ class Vault(ndb.Model):
     role_id = ndb.StringProperty()
     token = ndb.StringProperty()
 
+class Error(ndb.Model):
+    updated = ndb.DateTimeProperty(auto_now=True)
 
-def singleton_key():
-    return ndb.Key('Vault', 'SINGLETON')
+def singleton_key(kind='Vault'):
+    return ndb.Key(kind, 'SINGLETON')
 
 
 def init(role_id, secret_id):

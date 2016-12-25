@@ -92,7 +92,7 @@ def record_success(start):
 
 
 def record_failure(start):
-    memcache.set('LAST_FAILURE', start)
+    vault.Error(key=vault.singleton_key('Error')).put()
 
 
 @app.route('/vault/beat', methods=['POST'])
@@ -131,11 +131,13 @@ def vault_summary():
     m = end.strftime('%Y-%m-%d-%H-%M')
     h = end.strftime('%Y-%m-%d-%H')
     d = end.strftime('%Y-%m-%d')
-    f = memcache.get('LAST_FAILURE')
-    if not f:
-        memcache.set('LAST_FAILURE', end)
-        f = end
-    td = end - f
+    k = vault.singleton_key('Error')
+    f = k.get()
+    if f:
+        td = end - f.updated
+    else:
+        vault.Error(key=k).put()
+        td = end - end
     return t.render(last_failure_days=td.days,
                     last_failure_hours=td.seconds // 3600 ,
                     last_failure_minutes=td.seconds // 60 % 60,
